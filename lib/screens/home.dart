@@ -1,6 +1,12 @@
+import 'dart:typed_data';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firestore/models/cloud_storage_resoult.dart';
 import 'package:firestore/models/items.dart';
 import 'package:firestore/services/auth.dart';
 import 'package:firestore/services/database.dart';
+import 'package:firestore/services/storage.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,9 +22,19 @@ class _HomePageState extends State<HomePage> {
 
   List<Item> getItem = List<Item>();
   DataBaseService db = DataBaseService();
+  String downloadUrl;
+  bool isComplited = false;
+
   @override
   void initState() {
     super.initState();
+    CloudStorageService().getImageUrl().then((CloudStorageResoult res) {
+      downloadUrl = res.imageUrl;
+      CloudStorageService()
+          .getImageUrl()
+          .whenComplete(() => isComplited = true);
+    });
+
     loadData();
   }
 
@@ -57,8 +73,17 @@ class _HomePageState extends State<HomePage> {
             return ListTile(
               title: Text(getItem[index].name),
               subtitle: Text(getItem[index].soName),
-              leading: Text((index + 1).toString()),
+              leading: Container(
+                child: CachedNetworkImage(
+                  imageUrl: downloadUrl,
+                  placeholder: (context, url) => CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                ),
+              ),
               trailing: Text("id: ${getItem[index].id}"),
+              onTap: () => {
+                //
+              },
             );
           },
         ));
