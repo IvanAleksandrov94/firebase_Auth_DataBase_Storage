@@ -1,4 +1,4 @@
 # firebase
 
-firebase auth with Provider
+firebase using Provider
 
